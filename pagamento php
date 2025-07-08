@@ -1,0 +1,190 @@
+<?php session_start(); ?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Confirmação de Pagamento | TechShop+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #00ffff;
+      --accent: #8a2be2;
+      --bg: #0a0a0a;
+      --text: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 30px;
+    }
+
+    .container {
+      background-color: #111;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px var(--primary);
+      width: 100%;
+      max-width: 600px;
+      animation: fadeIn 1s ease;
+    }
+
+    h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 15px;
+      display: block;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 2px solid var(--primary);
+      background-color: #222;
+      color: var(--text);
+      font-size: 1em;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .qr-code {
+      width: 200px;
+      margin: 25px auto;
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 0 10px var(--primary);
+    }
+
+    .dados-banco {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 0.95em;
+      line-height: 1.6;
+      border-top: 1px solid #333;
+      padding-top: 15px;
+    }
+
+    .btn-finalizar {
+      margin-top: 30px;
+      padding: 15px 25px;
+      font-size: 1.1em;
+      font-weight: bold;
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      width: 100%;
+    }
+
+    .btn-finalizar:hover {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent);
+    }
+
+    .carregando {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.2em;
+      color: var(--primary);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(30px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Confirme seus Dados</h2>
+
+  <form onsubmit="event.preventDefault(); finalizarPagamento();">
+    <label for="nome">Nome Completo</label>
+    <input type="text" id="nome" value="<?php echo htmlspecialchars($_POST['nome'] ?? ''); ?>" required>
+
+    <label for="email">E-mail</label>
+    <input type="email" id="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required>
+
+    <label for="telefone">Telefone</label>
+    <input type="tel" id="telefone" value="<?php echo htmlspecialchars($_POST['telefone'] ?? ''); ?>" required>
+
+    <label for="endereco">Endereço</label>
+    <input type="text" id="endereco" value="<?php echo htmlspecialchars($_POST['endereco'] ?? ''); ?>" required>
+
+    <label for="cep">CEP</label>
+    <input type="text" id="cep" value="<?php echo htmlspecialchars($_POST['cep'] ?? ''); ?>" required>
+
+    <label for="cidade">Cidade</label>
+    <input type="text" id="cidade" value="<?php echo htmlspecialchars($_POST['cidade'] ?? ''); ?>" required>
+
+    <label for="estado">Estado</label>
+    <input type="text" id="estado" value="<?php echo htmlspecialchars($_POST['estado'] ?? ''); ?>" required>
+
+    <label for="pagamento">Forma de Pagamento</label>
+    <input type="text" id="pagamento" value="<?php echo htmlspecialchars($_POST['pagamento'] ?? ''); ?>" required>
+
+    <img src="QR code surpresa.png" alt="QR Code PIX" class="qr-code">
+
+    <div class="dados-banco">
+      <strong>Dados Bancários:</strong><br>
+      Banco: 001 - Banco do Brasil<br>
+      Agência: 1234-5<br>
+      Conta: 67890-1<br>
+      Nome: TechNova Soluções Ltda<br>
+      CNPJ: 00.123.456/0001-99<br>
+      Chave PIX: pagamentos@technova.com
+    </div>
+
+    <button type="submit" class="btn-finalizar">Finalizar Pagamento</button>
+    <div class="carregando" id="loading">Processando pagamento...</div>
+  </form>
+</div>
+
+<script>
+  function finalizarPagamento() {
+    document.querySelector('.btn-finalizar').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    setTimeout(() => {
+      window.location.href = 'index.php';
+    }, 3000);
+  }
+</script>
+
+</body>
+</html>
