@@ -1,0 +1,145 @@
+<?php
+session_start();
+
+
+$categorias_nome = [
+  "smartwatch"   => "Smartwatches",
+  "headset"      => "Headsets",
+  "automacao"    => "Automação",
+  "mouse"        => "Mouses Gamer",
+  "placa-video"  => "Placas de Vídeo",
+  "consoles"     => "Consoles",
+  "hardware"     => "Hardware",
+  "perifericos"  => "Periféricos",
+  "placa-mae"    => "Placas Mãe",
+  "memoria-ram"  => "Memórias RAM",
+  "ssd"          => "SSDs",
+  "tv"           => "TVs",
+  "acessorios"   => "Acessórios",
+  "baterias"     => "Carregadores & Baterias"
+];
+
+
+$produtos = [
+  "smartwatch" => [
+    ["nome" => "Smartwatch X9", "preco" => "299,90", "img" => "smartx9.webp"],
+    ["nome" => "Smartwatch Fit Pro", "preco" => "199,90", "img" => "SmartwatchFitPro.webp"],
+    ["nome" => "Smartwatch Elite S", "preco" => "449,00", "img" => "Smartwatch Elite s.webp"]
+  ],
+  "headset" => [
+    ["nome" => "Headset Gamer RGB", "preco" => "349,90", "img" => "Headset Gamer RGB.webp"],
+    ["nome" => "Headset Surround 7.1", "preco" => "439,00", "img" => "Headset Surround 7.1.jpg"],
+    ["nome" => "Headset Sem Fio Max", "preco" => "519,90", "img" => "Headset Sem Fio Max.webp"]
+  ],
+  "automacao" => [
+    ["nome" => "Kit Casa Inteligente", "preco" => "599,90", "img" => "kitcasa.webp"],
+    ["nome" => "Tomada Wi-Fi", "preco" => "179,00", "img" => "wifitomada.webp"],
+    ["nome" => "Sensor de Presença", "preco" => "129,90", "img" => "sensor.webp"]
+  ],
+  "mouse" => [
+    ["nome" => "Mouse UltraLight", "preco" => "159,00", "img" => "mouse1.png"],
+    ["nome" => "Mouse Gamer X7", "preco" => "199,00", "img" => "mouse2.png"],
+    ["nome" => "Mouse Wireless Pro", "preco" => "249,90", "img" => "mouse3.png"]
+  ],
+  "placa-video" => [
+    ["nome" => "RTX 4060 TI", "preco" => "1899,90", "img" => "placa1.png"],
+    ["nome" => "RX 6600 XT", "preco" => "1499,00", "img" => "placa2.png"],
+    ["nome" => "RTX 4070", "preco" => "2899,90", "img" => "placa3.png"]
+  ],
+  "consoles" => [
+    ["nome" => "PlayStation 5", "preco" => "2499,99", "img" => "console1.png"],
+    ["nome" => "Xbox Series X", "preco" => "2799,90", "img" => "console2.png"],
+    ["nome" => "Nintendo Switch", "preco" => "1599,00", "img" => "console3.png"]
+  ],
+  "hardware" => [
+    ["nome" => "Cooler Master Fan RGB", "preco" => "99,00", "img" => "hardware1.png"],
+    ["nome" => "Fonte 650W Bronze", "preco" => "379,00", "img" => "hardware2.png"],
+    ["nome" => "Gabinete Mid-Tower", "preco" => "499,90", "img" => "hardware3.png"]
+  ],
+  "perifericos" => [
+    ["nome" => "Teclado Mecânico RGB", "preco" => "289,90", "img" => "periferico1.png"],
+    ["nome" => "Mousepad Gamer XL", "preco" => "69,00", "img" => "periferico2.png"],
+    ["nome" => "Webcam Full HD", "preco" => "279,90", "img" => "periferico3.png"]
+  ],
+  "placa-mae" => [
+    ["nome" => "Asus B550", "preco" => "699,00", "img" => "placamae1.png"],
+    ["nome" => "MSI A520", "preco" => "489,00", "img" => "placamae2.png"],
+    ["nome" => "Gigabyte X570", "preco" => "1299,00", "img" => "placamae3.png"]
+  ],
+  "memoria-ram" => [
+    ["nome" => "DDR4 16GB 3200MHz", "preco" => "299,90", "img" => "ram1.png"],
+    ["nome" => "DDR5 32GB 6000MHz", "preco" => "649,00", "img" => "ram2.png"],
+    ["nome" => "DDR4 32GB 3600MHz", "preco" => "499,90", "img" => "ram3.png"]
+  ],
+  "ssd" => [
+    ["nome" => "NVMe 500GB", "preco" => "239,00", "img" => "ssd1.png"],
+    ["nome" => "SATA 1TB", "preco" => "389,00", "img" => "ssd2.png"],
+    ["nome" => "NVMe 1TB", "preco" => "479,00", "img" => "ssd3.png"]
+  ],
+  "tv" => [
+    ["nome" => "Smart TV 50\" UHD", "preco" => "2199,00", "img" => "tv1.png"],
+    ["nome" => "Smart TV 65\" 4K", "preco" => "3499,90", "img" => "tv2.png"],
+    ["nome" => "Smart TV 75\" OLED", "preco" => "7899,00", "img" => "tv3.png"]
+  ],
+  "acessorios" => [
+    ["nome" => "Suporte Notebook", "preco" => "89,90", "img" => "acessorio1.png"],
+    ["nome" => "Luminária RGB USB", "preco" => "49,00", "img" => "acessorio2.png"],
+    ["nome" => "Fones de Ouvido USB-C", "preco" => "129,90", "img" => "acessorio3.png"]
+  ],
+  "baterias" => [
+    ["nome" => "Carregador Turbo 33W", "preco" => "99,90", "img" => "bateria1.png"],
+    ["nome" => "Power Bank 20000mAh", "preco" => "149,00", "img" => "bateria2.png"],
+    ["nome" => "Bateria Extra 5000mAh", "preco" => "79,90", "img" => "bateria3.png"]
+  ],
+];
+
+
+$categoria = $_GET['categoria'] ?? '';
+$produtos_exibir = $produtos[$categoria] ?? [];
+$categoria_nome = $categorias_nome[$categoria] ?? "Todos os Produtos";
+?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>TechShop+ - <?= $categoria_nome ?></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root { --primary:#00ffff; --accent:#8a2be2; --bg:#0a0a0a; --text:#fff; }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
+    body{background:var(--bg);color:var(--text);min-height:100vh;}
+    header{background:linear-gradient(90deg,var(--primary),var(--accent));padding:20px;display:flex;justify-content:space-between;align-items:center;}
+    .logo{font-size:2em;font-weight:bold;background:linear-gradient(45deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .btn-home{text-decoration:none;background:var(--text);color:#000;padding:10px 20px;border-radius:8px;font-weight:bold;transition:0.3s;}
+    .btn-home:hover{background:var(--accent);color:#fff;}
+    h2{text-align:center;color:var(--primary);margin:30px 0;}
+    .carrossel{display:flex;overflow-x:auto;gap:20px;padding:20px;}
+    .carrossel::-webkit-scrollbar{display:none;}
+    .produto{min-width:240px;background:#111;border:2px solid var(--primary);border-radius:12px;padding:15px;text-align:center;box-shadow:0 0 10px var(--primary);transition:transform .3s;}
+    .produto:hover{transform:scale(1.03);box-shadow:0 0 15px var(--accent);}
+    .produto img{width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:10px;}
+    .produto h4{margin-bottom:8px;color:var(--text);}
+    .preco{color:#0f0;font-weight:bold;margin-bottom:10px;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">TechShop+</div>
+    <a href="index.php" class="btn-home">🏠 Home</a>
+  </header>
+  <h2><?= $categoria_nome ?></h2>
+  <?php if(!$produtos_exibir): ?>
+    <p style="text-align:center;color:#888;margin-top:50px;">Nenhum produto encontrado nesta categoria.</p>
+  <?php else: ?>
+    <div class="carrossel">
+      <?php foreach($produtos_exibir as $p): ?>
+        <div class="produto">
+          <img src="<?= $p['img'] ?>" alt="<?= htmlspecialchars($p['nome']) ?>">
+          <h4><?= htmlspecialchars($p['nome']) ?></h4>
+          <div class="preco">R$ <?= $p['preco'] ?></div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+</body>
+</html>
