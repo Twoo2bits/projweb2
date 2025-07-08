@@ -1,0 +1,154 @@
+<?php session_start(); ?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Pagamento | TechShop+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #00ffff;
+      --accent: #8a2be2;
+      --bg: #0a0a0a;
+      --text: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #111;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px var(--primary);
+      animation: fadeIn 1s ease;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--primary);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      background-color: #222;
+      color: var(--text);
+      transition: 0.3s ease;
+      font-size: 1em;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .btn-pagar {
+      width: 100%;
+      margin-top: 30px;
+      padding: 15px;
+      font-size: 1.1em;
+      font-weight: bold;
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .btn-pagar:hover {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent);
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(30px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Finalizar Pagamento</h2>
+  <form action="confirmar_pagamento.php" method="POST">
+  <label for="nome">Nome Completo</label>
+  <input type="text" name="nome" id="nome" required>
+
+  <label for="email">E-mail</label>
+  <input type="email" name="email" id="email" required>
+
+  <label for="telefone">Telefone</label>
+  <input type="tel" name="telefone" id="telefone" placeholder="(00) 00000-0000" required>
+
+  <label for="endereco">Endereço</label>
+  <input type="text" name="endereco" id="endereco" required>
+
+  <label for="cep">CEP</label>
+  <input type="text" name="cep" id="cep" placeholder="00000-000" required>
+
+  <label for="cidade">Cidade</label>
+  <input type="text" name="cidade" id="cidade" required>
+
+  <label for="estado">Estado</label>
+  <select name="estado" id="estado" required>
+    <option value="">Selecione...</option>
+    <option value="SP">São Paulo</option>
+    <option value="RJ">Rio de Janeiro</option>
+    <option value="MG">Minas Gerais</option>
+    <option value="RS">Rio Grande do Sul</option>
+    <option value="BA">Bahia</option>
+    <option value="PR">Paraná</option>
+  </select>
+
+  <label for="pagamento">Método de Pagamento</label>
+  <select name="pagamento" id="pagamento" required>
+    <option value="">Selecione...</option>
+    <option value="pix">PIX</option>
+    <option value="cartao">Cartão de Crédito</option>
+    <option value="boleto">Boleto Bancário</option>
+  </select>
+
+  <button type="submit" class="btn-pagar">Confirmar e Prosseguir</button>
+</form>
+
+</div>
+
+</body>
+</html>
