@@ -1,154 +1,778 @@
-<?php session_start(); ?>
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Pagamento | TechShop+</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>
-    :root {
-      --primary: #00ffff;
-      --accent: #8a2be2;
-      --bg: #0a0a0a;
-      --text: #ffffff;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Pedido | TechShop+</Responsive></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
+        :root {
+            --primary: #00ffff;
+            --secondary: #8a2be2;
+            --bg: #0a0a0a;
+            --text: #ffffff;
+            --accent: #00ffee;
+            --dark-card: #151515;
+            --gradient-border: linear-gradient(90deg, #00ffff, #8a2be2);
+        }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 20px;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
 
-    .container {
-      width: 100%;
-      max-width: 600px;
-      background-color: #111;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px var(--primary);
-      animation: fadeIn 1s ease;
-    }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-bottom: 50px;
+        }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: var(--primary);
-    }
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-      margin-top: 15px;
-    }
+        header {
+            background: var(--gradient-border);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px var(--primary);
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
 
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid var(--primary);
-      border-radius: 8px;
-      background-color: #222;
-      color: var(--text);
-      transition: 0.3s ease;
-      font-size: 1em;
-    }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-    }
+        .logo {
+            height: 50px;
+            object-fit: contain;
+        }
 
-    .btn-pagar {
-      width: 100%;
-      margin-top: 30px;
-      padding: 15px;
-      font-size: 1.1em;
-      font-weight: bold;
-      background: var(--primary);
-      color: #000;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ffff, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
 
-    .btn-pagar:hover {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 0 15px var(--accent);
-    }
+        .back-btn {
+            background: var(--primary);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
 
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(30px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
+        .back-btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--accent);
+        }
 
-    @media (max-width: 600px) {
-      .container {
-        padding: 20px;
-      }
-    }
-  </style>
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-top: 50px;
+            background-color: var(--dark-card);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), 0 0 30px rgba(138, 43, 226, 0.4);
+            animation: fadeIn 1s ease-out;
+            border: 1px solid var(--primary);
+        }
+
+
+        .order-summary {
+            flex: 1 1 300px;
+            background-color: #1a1a1a;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .order-summary h3 {
+            font-size: 1.8em;
+            color: var(--accent);
+            margin-bottom: 25px;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .order-summary ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 25px;
+        }
+
+        .order-summary ul li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            font-size: 1.05em;
+            flex-wrap: wrap; 
+        }
+        .order-summary ul li:last-child {
+            border-bottom: none;
+        }
+        .order-summary ul li strong {
+            color: var(--primary);
+            margin-right: 10px; 
+        }
+        .order-summary ul li span {
+            flex-grow: 1; 
+        }
+
+        .order-summary .remove-item-btn {
+            background-color: #ff3333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-left: 15px; 
+            flex-shrink: 0;
+        }
+
+        .order-summary .remove-item-btn:hover {
+            background-color: #cc0000;
+            transform: translateY(-1px);
+        }
+
+        .order-summary .total-price {
+            font-size: 1.7em;
+            font-weight: bold;
+            color: #0f0;
+            text-align: right;
+            margin-top: 20px;
+            text-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+        }
+
+
+        .payment-form {
+            flex: 2 1 450px;
+        }
+
+        .payment-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+            font-size: 2.5em;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 15px rgba(0,255,255,0.7);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            background-color: #0f0f0f;
+            color: var(--text);
+            font-size: 1em;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        select {
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300ffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.7L146.2%20224.2%2018.8%2075.1a17.6%2017.6%200%200%200-25.3%2023.3l137.9%20146.9c5.6%205.7%2013.3%208.7%2021%208.7s15.5-3%2021-8.7l137.9-146.9c8.6-9.2%208.6-22.9%200-32.2z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+            cursor: pointer;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+            background-color: #101010;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 20px;
+        }
+        .input-group .form-group {
+            flex: 1;
+        }
+
+        .credit-card-fields {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(0, 255, 255, 0.2);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .btn-submit {
+            width: 100%;
+            margin-top: 30px;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+        }
+
+        .btn-submit:hover {
+            background: var(--accent);
+            color: var(--text);
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px var(--accent);
+        }
+
+        .security-info {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        .security-info i {
+            color: #0f0;
+            margin-right: 8px;
+        }
+
+
+        .progress-bar-container {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 30px;
+            margin-bottom: -20px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+            border: 1px solid var(--secondary);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            transition: color 0.4s ease;
+            position: relative;
+            flex: 1;
+        }
+
+        .progress-step .icon {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            z-index: 2;
+            position: relative;
+            background-color: #1a1a1a;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: color 0.4s ease;
+        }
+
+        .progress-step .text {
+            font-size: 0.9em;
+            font-weight: bold;
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            background-color: #1a1a1a;
+            padding: 3px 8px;
+            border-radius: 5px;
+            transition: color 0.4s ease;
+        }
+
+        .progress-step.active .icon,
+        .progress-step.active .text {
+            color: var(--accent);
+        }
+
+        .progress-step.completed .icon,
+        .progress-step.completed .text {
+            color: var(--primary);
+        }
+
+        .progress-bar-line {
+            position: absolute;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            width: 0%;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: width 0.6s ease-in-out;
+            z-index: 1;
+        }
+
+
+        .progress-bar-container[data-step="1"] .progress-bar-line { width: 0%; }
+        .progress-bar-container[data-step="2"] .progress-bar-line { width: 50%; }
+        .progress-bar-container[data-step="3"] .progress-bar-line { width: 100%; }
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        @media (max-width: 960px) {
+            .container {
+                flex-direction: column;
+                gap: 30px;
+                padding: 30px;
+                margin-top: 30px;
+            }
+            .order-summary, .payment-form {
+                flex: 1 1 100%;
+            }
+            header {
+                padding: 15px 20px;
+                justify-content: center;
+            }
+            .logo-container {
+                width: 100%;
+                justify-content: center;
+            }
+            .back-btn {
+                width: 100%;
+                text-align: center;
+            }
+            .progress-bar-container {
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+            .container {
+                padding: 25px;
+            }
+            .payment-form h2 {
+                font-size: 2em;
+            }
+            label {
+                font-size: 1em;
+            }
+            input, select {
+                padding: 12px;
+                font-size: 0.95em;
+            }
+            .input-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .btn-submit {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+            .order-summary h3 {
+                font-size: 1.6em;
+            }
+            .order-summary ul li {
+                font-size: 1em;
+                flex-direction: column; 
+                align-items: flex-start;
+            }
+            .order-summary ul li span,
+            .order-summary ul li strong {
+                width: 100%; 
+            }
+            .order-summary .remove-item-btn {
+                margin-left: 0; 
+                margin-top: 10px; 
+                width: auto; 
+            }
+            .order-summary .total-price {
+                font-size: 1.5em;
+            }
+            .progress-step .icon {
+                font-size: 1.5em;
+            }
+            .progress-step .text {
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .logo-text {
+                font-size: 1.5em;
+            }
+            .back-btn {
+                font-size: 0.9em;
+            }
+            .payment-form h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <div class="logo-container">
+            <a href="index.php"><img src="logoApp2.png" alt="TechShop+ Logo" class="logo"></a>
+            <span class="logo-text">TechShop+</span>
+        </div>
+        <a href="index.php" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar à Loja</a>
+    </header>
 
-<div class="container">
-  <h2>Finalizar Pagamento</h2>
-  <form action="confirmar_pagamento.php" method="POST">
-  <label for="nome">Nome Completo</label>
-  <input type="text" name="nome" id="nome" required>
+    <div class="progress-bar-container" data-step="2">
+        <div class="progress-step completed">
+            <i class="fas fa-cogs icon"></i>
+            <span class="text">Configuração</span>
+        </div>
+        <div class="progress-step active">
+            <i class="fas fa-credit-card icon"></i>
+            <span class="text">Pagamento</span>
+        </div>
+        <div class="progress-step">
+            <i class="fas fa-check-circle icon"></i>
+            <span class="text">Confirmação</span>
+        </div>
+        <div class="progress-bar-line"></div>
+    </div>
 
-  <label for="email">E-mail</label>
-  <input type="email" name="email" id="email" required>
+    <div class="container">
+        <div class="order-summary">
+            <h3>Seu Pedido</h3>
+            <div id="summary-content">
+                <?php
 
-  <label for="telefone">Telefone</label>
-  <input type="tel" name="telefone" id="telefone" placeholder="(00) 00000-0000" required>
+                $total_price = 0;
+                $items_to_display = [];
 
-  <label for="endereco">Endereço</label>
-  <input type="text" name="endereco" id="endereco" required>
+                if (isset($_POST['componentes']) && is_array($_POST['componentes']) && isset($_POST['total_montagem'])) {
+                    $_SESSION['configuracao_pc'] = []; 
+                    foreach ($_POST['componentes'] as $componente_nome => $dados) {
+                        $_SESSION['configuracao_pc'][$componente_nome] = [
+                            'descricao' => $dados['descricao'],
+                            'preco' => (float)$dados['preco']
+                        ];
+                    }
+                    $_SESSION['total_configuracao_pc'] = (float)$_POST['total_montagem'];
 
-  <label for="cep">CEP</label>
-  <input type="text" name="cep" id="cep" placeholder="00000-000" required>
+                    unset($_SESSION['carrinho_de_compras']); 
+                }
+                else if (isset($_SESSION['configuracao_pc']) && !empty($_SESSION['configuracao_pc'])) {
+                }
+                else if (isset($_SESSION['carrinho_de_compras']) && !empty($_SESSION['carrinho_de_compras'])) {
+                }
 
-  <label for="cidade">Cidade</label>
-  <input type="text" name="cidade" id="cidade" required>
+                if (isset($_SESSION['configuracao_pc']) && !empty($_SESSION['configuracao_pc'])) {
+                    $items_to_display = $_SESSION['configuracao_pc'];
+                    echo '<ul id="order-list">';
+                    foreach ($items_to_display as $item_key => $details) {
+                        $display_name = str_replace(['-', '_'], ' ', $item_key);
+                        $display_name = ucwords($display_name);
+                        echo '<li data-item-key="' . htmlspecialchars($item_key) . '" data-item-price="' . htmlspecialchars($details['preco']) . '">';
+                        echo '<strong>' . htmlspecialchars($display_name) . ':</strong> <span>' . htmlspecialchars($details['descricao']) . ' (R$ ' . number_format($details['preco'], 2, ',', '.') . ')</span>';
+                        echo '<button type="button" class="remove-item-btn" data-item-type="config" data-item-id="' . htmlspecialchars($item_key) . '"><i class="fas fa-trash-alt"></i></button>';
+                        echo '</li>';
+                        $total_price += $details['preco'];
+                    }
+                    echo '</ul>';
+                    echo '<p style="margin-top:15px; color:#ccc;">(Este é o resumo da sua configuração de PC)</p>';
+                } else if (isset($_SESSION['carrinho_de_compras']) && !empty($_SESSION['carrinho_de_compras'])) {
+                    $items_to_display = $_SESSION['carrinho_de_compras'];
+                    echo '<ul id="order-list">';
+                    foreach ($items_to_display as $index => $item) {
+                        echo '<li data-item-index="' . $index . '" data-item-price="' . htmlspecialchars($item['preco']) . '">';
+                        echo '<strong>' . htmlspecialchars($item['nome']) . ':</strong> <span>R$ ' . number_format($item['preco'], 2, ',', '.') . '</span>';
+                        echo '<button type="button" class="remove-item-btn" data-item-type="cart" data-item-id="' . $index . '"><i class="fas fa-trash-alt"></i></button>';
+                        echo '</li>';
+                        $total_price += $item['preco'];
+                    }
+                    echo '</ul>';
+                } else {
+                    echo '<p id="empty-order-message">Nenhum item adicionado ao pedido. Por favor, volte e adicione itens ao carrinho ou monte seu PC.</p>';
+                }
+                ?>
+                <div class="total-price">Total: R$ <span id="summaryTotalPrice"><?php echo number_format($total_price, 2, ',', '.'); ?></span></div>
+            </div>
+            <div class="security-info">
+                <i class="fas fa-lock"></i> Seus dados estão seguros e protegidos.
+            </div>
+        </div>
 
-  <label for="estado">Estado</label>
-  <select name="estado" id="estado" required>
-    <option value="">Selecione...</option>
-    <option value="SP">São Paulo</option>
-    <option value="RJ">Rio de Janeiro</option>
-    <option value="MG">Minas Gerais</option>
-    <option value="RS">Rio Grande do Sul</option>
-    <option value="BA">Bahia</option>
-    <option value="PR">Paraná</option>
-  </select>
+        <div class="payment-form">
+            <h2>Dados para Entrega e Pagamento</h2>
+            <form action="confirmar_pagamento.php" method="POST">
+                <div class="form-group">
+                    <label for="nome"><i class="fas fa-user"></i> Nome Completo</label>
+                    <input type="text" name="nome" id="nome" required placeholder="Seu nome completo">
+                </div>
 
-  <label for="pagamento">Método de Pagamento</label>
-  <select name="pagamento" id="pagamento" required>
-    <option value="">Selecione...</option>
-    <option value="pix">PIX</option>
-    <option value="cartao">Cartão de Crédito</option>
-    <option value="boleto">Boleto Bancário</option>
-  </select>
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> E-mail</label>
+                    <input type="email" name="email" id="email" required placeholder="seu.email@exemplo.com">
+                </div>
 
-  <button type="submit" class="btn-pagar">Confirmar e Prosseguir</button>
-</form>
+                <div class="form-group">
+                    <label for="telefone"><i class="fas fa-phone"></i> Telefone</label>
+                    <input type="tel" name="telefone" id="telefone" placeholder="(XX) XXXXX-XXXX" pattern="\(\d{2}\) \d{5}-\d{4}" required>
+                </div>
 
-</div>
+                <div class="form-group">
+                    <label for="endereco"><i class="fas fa-map-marker-alt"></i> Endereço Completo (Rua, Número, Bairro)</label>
+                    <input type="text" name="endereco" id="endereco" required placeholder="Rua Exemplo, 123, Centro">
+                </div>
+
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="cep"><i class="fas fa-map-pin"></i> CEP</label>
+                        <input type="text" name="cep" id="cep" placeholder="XXXXX-XXX" pattern="\d{5}-\d{3}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cidade"><i class="fas fa-city"></i> Cidade</label>
+                        <input type="text" name="cidade" id="cidade" required placeholder="São Paulo">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="estado"><i class="fas fa-globe-americas"></i> Estado</label>
+                    <select name="estado" id="estado" required>
+                        <option value="">Selecione um estado...</option>
+                        <option value="AC">Acre</option>
+                        <option value="AL">Alagoas</option>
+                        <option value="AP">Amapá</option>
+                        <option value="AM">Amazonas</option>
+                        <option value="BA">Bahia</option>
+                        <option value="CE">Ceará</option>
+                        <option value="DF">Distrito Federal</option>
+                        <option value="ES">Espírito Santo</option>
+                        <option value="GO">Goiás</option>
+                        <option value="MA">Maranhão</option>
+                        <option value="MT">Mato Grosso</option>
+                        <option value="MS">Mato Grosso do Sul</option>
+                        <option value="MG">Minas Gerais</option>
+                        <option value="PA">Pará</option>
+                        <option value="PB">Paraíba</option>
+                        <option value="PR">Paraná</option>
+                        <option value="PE">Pernambuco</option>
+                        <option value="PI">Piauí</option>
+                        <option value="RJ">Rio de Janeiro</option>
+                        <option value="RN">Rio Grande do Norte</option>
+                        <option value="RS">Rio Grande do Sul</option>
+                        <option value="RO">Rondônia</option>
+                        <option value="RR">Roraima</option>
+                        <option value="SC">Santa Catarina</option>
+                        <option value="SP">São Paulo</option>
+                        <option value="SE">Sergipe</option>
+                        <option value="TO">Tocantins</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pagamento"><i class="fas fa-money-bill-wave"></i> Método de Pagamento</label>
+                    <select name="pagamento" id="pagamento" required onchange="toggleCreditCardFields()">
+                        <option value="">Selecione um método...</option>
+                        <option value="pix">PIX</option>
+                        <option value="cartao">Cartão de Crédito</option>
+                        <option value="boleto">Boleto Bancário</option>
+                    </select>
+                </div>
+
+                <div class="credit-card-fields" id="creditCardFields">
+                    <h3><i class="fas fa-credit-card"></i> Dados do Cartão de Crédito</h3>
+                    <div class="form-group">
+                        <label for="numero-cartao">Número do Cartão</label>
+                        <input type="text" name="numero_cartao" id="numero-cartao" placeholder="XXXX XXXX XXXX XXXX" pattern="\d{4} \d{4} \d{4} \d{4}" maxlength="19">
+                    </div>
+                    <div class="input-group">
+                        <div class="form-group">
+                            <label for="validade-cartao">Validade (MM/AA)</label>
+                            <input type="text" name="validade_cartao" id="validade-cartao" placeholder="MM/AA" pattern="(0[1-9]|1[0-2])\/\d{2}" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv-cartao">CVV</label>
+                            <input type="text" name="cvv_cartao" id="cvv-cartao" placeholder="XXX" pattern="\d{3,4}" maxlength="4">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nome-cartao">Nome Impresso no Cartão</label>
+                        <input type="text" name="nome_cartao" id="nome-cartao" placeholder="Nome exatamente como no cartão">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit"><i class="fas fa-check-circle"></i> Confirmar Pedido</button>
+            </form>
+        </div>
+    </div>
+
+   <script>
+    function toggleCreditCardFields() {
+        const paymentMethod = document.getElementById('pagamento').value;
+        const creditCardFields = document.getElementById('creditCardFields');
+        const ccInputs = creditCardFields.querySelectorAll('input');
+
+        if (paymentMethod === 'cartao') {
+            creditCardFields.style.display = 'block';
+
+            ccInputs.forEach(input => input.setAttribute('required', 'required'));
+        } else {
+            creditCardFields.style.display = 'none';
+            ccInputs.forEach(input => input.removeAttribute('required'));
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleCreditCardFields();
+
+        const phoneInput = document.getElementById('telefone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                let formattedValue = '';
+                if (value.length > 0) {
+                    formattedValue = `(${value.substring(0, 2)}`;
+                    if (value.length > 2) {
+                        formattedValue += `) ${value.substring(2, 7)}`;
+                        if (value.length > 7) {
+                            formattedValue += `-${value.substring(7, 11)}`;
+                        }
+                    }
+                }
+                e.target.value = formattedValue;
+            });
+        }
+
+        const cepInput = document.getElementById('cep');
+        if (cepInput) {
+            cepInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                let formattedValue = value;
+                if (value.length > 5) {
+                    formattedValue = `${value.substring(0, 5)}-${value.substring(5, 8)}`;
+                }
+                e.target.value = formattedValue;
+            });
+        }
+
+        const cardNumberInput = document.getElementById('numero-cartao');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                e.target.value = formattedValue;
+            });
+        }
+
+        const cardExpiryInput = document.getElementById('validade-cartao');
+        if (cardExpiryInput) {
+            cardExpiryInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                let formattedValue = value;
+                if (value.length > 2) {
+                    formattedValue = `${value.substring(0, 2)}/${value.substring(2, 4)}`;
+                }
+                e.target.value = formattedValue;
+            });
+        }
+
+
+        document.querySelectorAll('.remove-item-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const listItem = this.closest('li');
+                const itemPrice = parseFloat(this.dataset.itemPrice); 
+                const itemType = this.dataset.itemType; 
+                const itemId = this.dataset.itemId; 
+
+                fetch('remove_item.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `item_type=${encodeURIComponent(itemType)}&item_id=${encodeURIComponent(itemId)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        listItem.remove(); 
+
+                        let currentTotalElement = document.getElementById('summaryTotalPrice');
+                        let currentTotal = parseFloat(currentTotalElement.innerText.replace('R$', '').replace('.', '').replace(',', '.').trim());
+                        currentTotal -= itemPrice;
+                        currentTotalElement.innerText = currentTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                        const orderList = document.getElementById('order-list');
+                        if (!orderList || orderList.children.length === 0) {
+                            const summaryContent = document.getElementById('summary-content');
+                            summaryContent.innerHTML = '<p id="empty-order-message" style="text-align:center;color:#888;margin-top:50px;">Nenhum item adicionado ao pedido. Por favor, volte e adicione itens ao carrinho ou monte seu PC.</p>';
+                            currentTotalElement.innerText = '0,00'; 
+                        }
+                    } else {
+                        alert('Erro ao remover item: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro de rede ou no servidor:', error);
+                    alert('Não foi possível remover o item. Tente novamente.');
+                });
+            });
+        });
+    });
+</script>
 
 </body>
 </html>
