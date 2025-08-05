@@ -1,141 +1,273 @@
 <?php
 session_start();
+include 'config.php'; 
+
+$registration_error = '';
+$registration_success = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = $_POST['nome'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $senha = $_POST['senha'] ?? '';
+    $confirmar_senha = $_POST['confirmar'] ?? '';
+
+    if (empty($nome) || empty($email) || empty($senha) || empty($confirmar_senha)) {
+        $registration_error = "Todos os campos são obrigatórios.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $registration_error = "Formato de e-mail inválido.";
+    } elseif ($senha !== $confirmar_senha) {
+        $registration_error = "As senhas não coincidem.";
+    } elseif (strlen($senha) < 6) {
+        $registration_error = "A senha deve ter pelo menos 6 caracteres.";
+    } else {
+       
+        $stmt_check = $conn->prepare("SELECT id FROM usuarios WHERE email = ?");
+        if ($stmt_check) {
+            $stmt_check->bind_param("s", $email);
+            $stmt_check->execute();
+            $stmt_check->store_result();
+            if ($stmt_check->num_rows > 0) {
+                $registration_error = "Este e-mail já está cadastrado.";
+            } else {
+               
+                $senha_hashed = password_hash($senha, PASSWORD_DEFAULT);
+
+                
+                $stmt_insert = $conn->prepare("INSERT INTO usuarios (nome_completo, email, senha) VALUES (?, ?, ?)");
+                if ($stmt_insert) {
+                    $stmt_insert->bind_param("sss", $nome, $email, $senha_hashed);
+                    if ($stmt_insert->execute()) {
+                        $registration_success = "Cadastro realizado com sucesso! Você pode fazer login agora.";
+                     
+                        header("Location: login.php?cadastro_sucesso=true");
+                        exit();
+                    } else {
+                        $registration_error = "Erro ao cadastrar: " . $stmt_insert->error;
+                    }
+                    $stmt_insert->close();
+                } else {
+                    $registration_error = "Erro na preparação da declaração de inserção: " . $conn->error;
+                }
+            }
+            $stmt_check->close();
+        } else {
+            $registration_error = "Erro na preparação da declaração de verificação de e-mail: " . $conn->error;
+        }
+    }
+}
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cadastro | TechShop+</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="shortcut icon" href="logoApp.png" type="image/x-icon">
-  <style>
-    :root {
-      --primary: #00ffff;
-      --secondary: #8a2be2;
-      --bg: #0a0a0a;
-      --text: #ffffff;
-      --accent: #00ffee;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cadastro | TechShop+</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="shortcut icon" href="logoApp.png" type="image/x-icon">
+    <style>
+        :root {
+            --primary-light: #00ffff; 
+            --primary-dark: #00cccc; 
+            --secondary-accent: #8a2be2; 
+            --bg-dark: #0a0a0a;
+            --bg-medium: #1a1a1a; 
+            --text-light: #ffffff;
+            --text-muted: #cccccc; 
+            --border-color: rgba(0, 255, 255, 0.3); 
+            --input-bg: #2a2a2a; 
+            --focus-glow: 0 0 12px rgba(0, 255, 255, 0.7);
+            --shadow-strong: 0 8px 30px rgba(0, 255, 255, 0.2); 
+            --shadow-light: 0 4px 15px rgba(0, 255, 255, 0.1);
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            line-height: 1.6;
+        }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+        .container {
+            background-color: var(--bg-medium);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-strong);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
 
-    .container {
-      background: #111;
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px var(--primary);
-      width: 100%;
-      max-width: 450px;
-    }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent 0%, var(--primary-light) 10%, transparent 20%, transparent 100%);
+            animation: rotateBg 10s linear infinite;
+            z-index: -1;
+            opacity: 0.1;
+        }
 
-    .container h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 2em;
-      color: var(--primary);
-      text-shadow: 0 0 10px var(--primary);
-    }
+        @keyframes rotateBg {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
-    .form-group {
-      margin-bottom: 20px;
-    }
+        h2 {
+            color: var(--primary-light);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px var(--primary-light);
+        }
 
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-    }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
 
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: #222;
-      color: var(--text);
-      font-size: 1em;
-      box-shadow: 0 0 5px var(--primary);
-      outline: none;
-      transition: 0.3s;
-    }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 1em;
+        }
 
-    .form-group input:focus {
-      box-shadow: 0 0 10px var(--accent);
-    }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: var(--text-light);
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
 
-    .btn-cadastrar {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary);
-      border: none;
-      border-radius: 10px;
-      color: #000;
-      font-weight: bold;
-      font-size: 1.1em;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="password"]:focus {
+            border-color: var(--primary-light);
+            box-shadow: var(--focus-glow);
+            outline: none;
+        }
 
-    .btn-cadastrar:hover {
-      background: var(--accent);
-    }
+        button {
+            background: linear-gradient(90deg, var(--primary-light), var(--secondary-accent));
+            color: #fff;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+            width: 100%;
+            box-shadow: var(--shadow-light);
+        }
 
-    .voltar-login {
-      display: block;
-      text-align: center;
-      margin-top: 20px;
-      color: var(--primary);
-      text-decoration: none;
-      font-size: 0.95em;
-    }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 255, 255, 0.3);
+            opacity: 0.9;
+        }
 
-    .voltar-login:hover {
-      color: var(--accent);
-      text-decoration: underline;
-    }
+        .login-link {
+            margin-top: 25px;
+            font-size: 0.95em;
+            color: var(--text-muted);
+        }
 
-  </style>
+        .login-link a {
+            color: var(--primary-dark);
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .login-link a:hover {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        .error-message, .success-message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+            text-align: center;
+        }
+
+        .error-message {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border: 1px solid #ff0000;
+        }
+
+        .success-message {
+            background-color: rgba(0, 255, 0, 0.2);
+            color: #6bff6b;
+            border: 1px solid #00ff00;
+        }
+    
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            animation: fadeIn 0.7s ease-out forwards;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Crie sua conta</h2>
-  <form action="login.php" method="POST">
-    <div class="form-group">
-      <label for="nome">Nome completo</label>
-      <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
+    <h2>Crie sua conta</h2>
+    <?php if (!empty($registration_error)): ?>
+        <p class="error-message"><?php echo htmlspecialchars($registration_error); ?></p>
+    <?php endif; ?>
+    <?php if (!empty($registration_success)): ?>
+        <p class="success-message"><?php echo htmlspecialchars($registration_success); ?></p>
+    <?php endif; ?>
+    <form action="cadastro.php" method="POST">
+        <div class="form-group">
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" value="<?= htmlspecialchars($nome ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" placeholder="Digite seu e-mail" value="<?= htmlspecialchars($email ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha" placeholder="Crie uma senha forte" required>
+        </div>
+        <div class="form-group">
+            <label for="confirmar">Confirmar Senha</label>
+            <input type="password" id="confirmar" name="confirmar" placeholder="Confirme a senha" required>
+        </div>
+        <button type="submit">Cadastrar</button>
+    </form>
+    <div class="login-link">
+        Já tem uma conta? <a href="login.php">Faça login aqui</a>
     </div>
-    <div class="form-group">
-      <label for="email">E-mail</label>
-      <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
-    </div>
-    <div class="form-group">
-      <label for="senha">Senha</label>
-      <input type="password" id="senha" name="senha" placeholder="Crie uma senha" required>
-    </div>
-    <div class="form-group">
-      <label for="confirmar">Confirmar Senha</label>
-      <input type="password" id="confirmar" name="confirmar" placeholder="Confirme a senha" required>
-    </div>
-    <button type="submit" class="btn-cadastrar">Cadastrar</button>
-  </form>
-
-  <a class="voltar-login" href="login.php">Já tem uma conta? Faça login</a>
 </div>
 
 </body>
