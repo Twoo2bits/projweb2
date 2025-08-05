@@ -1,116 +1,225 @@
 <?php
 session_start();
+include 'config.php'; 
+
+$login_error = ''; 
+
+if (isset($_GET['cadastro_sucesso']) && $_GET['cadastro_sucesso'] == 'true') {
+    $login_error = "Cadastro realizado com sucesso! Faça login."; 
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username_email = $_POST['usuario'] ?? '';
+    $password = $_POST['senha'] ?? '';
+
+    $stmt_user = $conn->prepare("SELECT id, nome_completo, email, senha FROM usuarios WHERE email = ?");
+    if ($stmt_user) {
+        $stmt_user->bind_param("s", $username_email);
+        $stmt_user->execute();
+        $result_user = $stmt_user->get_result();
+        if ($result_user->num_rows === 1) {
+            $user = $result_user->fetch_assoc();
+            if (password_verify($password, $user['senha'])) { 
+                $_SESSION['usuario_logado'] = $user['nome_completo'];
+                $_SESSION['usuario_id'] = $user['id'];
+                header("Location: index.php"); 
+                exit();
+            } else {
+                $login_error = "Usuário ou senha incorretos.";
+            }
+        } else {
+            $login_error = "Usuário ou senha incorretos.";
+        }
+        $stmt_user->close();
+    } else {
+        $login_error = "Erro na preparação da declaração de login: " . $conn->error;
+    }
+}
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | TechShop+</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="shortcut icon" href="logoApp.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #00ffff;
-      --secondary: #8a2be2;
+      --accent: #8a2be2;
       --bg: #0a0a0a;
-      --text: #ffffff;
-      --accent: #00ffee;
+      --text: #e0e0e0;
+      --card-bg: #1a1a1a;
+      --border-color: #333;
+      --input-bg: #0d0d0d;
+      --button-hover: #00cccc;
+      --glow-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
     }
 
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Roboto', sans-serif;
     }
 
     body {
-      background: linear-gradient(to bottom, #0a0a0a, #1a1a1a);
+      background: var(--bg);
       color: var(--text);
+      min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      padding: 20px;
     }
 
     .login-container {
-      background-color: #111;
-      padding: 40px 30px;
-      border-radius: 16px;
-      box-shadow: 0 0 25px var(--primary);
-      width: 100%;
-      max-width: 400px;
+      background: var(--card-bg);
+      border: 2px solid var(--primary);
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: var(--glow-shadow);
       text-align: center;
+      width: 90%;
+      max-width: 450px;
+      animation: fadeIn 0.7s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .login-container h2 {
-      margin-bottom: 20px;
+      font-family: 'Orbitron', sans-serif;
       color: var(--primary);
-      font-size: 1.8em;
-      text-shadow: 0 0 10px var(--accent);
+      margin-bottom: 25px;
+      font-size: 2.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
-    .login-container .input-group {
+    .login-container h2 .fas {
+        color: var(--accent);
+    }
+
+    .input-group {
       margin-bottom: 20px;
       text-align: left;
     }
 
-    .login-container label {
+    .input-group label {
       display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-size: 1em;
     }
 
-    .login-container input {
+    .input-group input {
       width: 100%;
-      padding: 12px;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      border: none;
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 1em;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
       outline: none;
-      background: #222;
-      color: #fff;
-      font-size: 1em;
-      transition: 0.3s;
     }
 
-    .login-container input:focus {
-      border: 2px solid var(--primary);
-      background: #1a1a1a;
-    }
-
-    .login-container button {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary);
-      border: none;
-      color: #000;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: 0.3s;
-    }
-
-    .login-container button:hover {
+    button {
       background: var(--accent);
-    }
-
-    .login-container .register {
+      color: #fff;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
       margin-top: 15px;
-      font-size: 0.9em;
-      color: #ccc;
     }
 
-    .login-container .register a {
+    button:hover {
+      background: var(--button-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+    }
+
+    .register {
+      margin-top: 25px;
+      font-size: 0.95em;
+      color: var(--text);
+    }
+
+    .register a {
       color: var(--primary);
       text-decoration: none;
       font-weight: bold;
-      transition: 0.3s;
+      transition: color 0.3s ease, text-decoration 0.3s ease;
     }
 
-    .login-container .register a:hover {
+    .register a:hover {
       color: var(--accent);
       text-decoration: underline;
+    }
+
+    .admin-link {
+        margin-top: 15px;
+        font-size: 0.9em;
+    }
+
+    .admin-link a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .admin-link a:hover {
+        color: var(--accent);
+        text-decoration: underline;
+    }
+
+    .management-link {
+        margin-top: 20px;
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    .management-link a {
+        color: var(--primary);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: color 0.3s ease;
+    }
+
+    .management-link a:hover {
+        color: var(--accent);
+        text-decoration: underline;
+    }
+
+    .management-link i {
+        margin-right: 8px;
+        color: var(--accent);
+    }
+
+    .error-message {
+        color: red;
+        margin-top: 10px;
+        font-weight: bold;
     }
   </style>
 </head>
@@ -118,9 +227,9 @@ session_start();
 
 <div class="login-container">
   <h2><i class="fas fa-user-circle"></i> Login</h2>
-  <form action="index.php" method="post">
+  <form action="login.php" method="post">
     <div class="input-group">
-      <label for="usuario">Usuário</label>
+      <label for="usuario">Usuário ou E-mail</label>
       <input type="text" id="usuario" name="usuario" required>
     </div>
     <div class="input-group">
@@ -129,8 +238,17 @@ session_start();
     </div>
     <button type="submit">Entrar</button>
   </form>
+
+  <?php if (!empty($login_error)): ?>
+    <p class="error-message"><?php echo htmlspecialchars($login_error); ?></p>
+  <?php endif; ?>
+
   <div class="register">
     Ainda não tem uma conta? <a href="cadastro.php">Cadastre-se</a>
+  </div>
+
+  <div class="admin-link">
+    <a href="admin.php">Acesso Administrativo</a>
   </div>
 </div>
 
