@@ -1,190 +1,634 @@
-<?php session_start(); ?>
+<?php
+session_start();
+include 'config.php'; 
+
+
+if (!isset($_SESSION['usuario_logado']) || !isset($_SESSION['usuario_id'])) {
+    
+    header("Location: login.php");
+    exit();
+}
+
+$nome = htmlspecialchars($_POST['nome'] ?? 'N/A');
+$email = htmlspecialchars($_POST['email'] ?? 'N/A');
+$telefone = htmlspecialchars($_POST['telefone'] ?? 'N/A');
+$endereco = htmlspecialchars($_POST['endereco'] ?? 'N/A');
+$cep = htmlspecialchars($_POST['cep'] ?? 'N/A');
+$cidade = htmlspecialchars($_POST['cidade'] ?? 'N/A');
+$estado = htmlspecialchars($_POST['estado'] ?? 'N/A');
+$metodo_pagamento = htmlspecialchars($_POST['pagamento'] ?? 'N/A');
+$numero_cartao = htmlspecialchars($_POST['numero-cartao'] ?? 'N/A');
+$validade_cartao = htmlspecialchars($_POST['validade-cartao'] ?? 'N/A');
+$cvv = htmlspecialchars($_POST['cvv-cartao'] ?? 'N/A');
+$nome_cartao = htmlspecialchars($_POST['nome-cartao'] ?? 'N/A');
+
+$order_items = [];
+$total_price = 0;
+$is_pc_config = false;
+
+if (isset($_SESSION['configuracao_pc']) && !empty($_SESSION['configuracao_pc'])) {
+    $order_items = $_SESSION['configuracao_pc'];
+    foreach ($order_items as $details) {
+        $total_price += $details['preco'];
+    }
+    $is_pc_config = true;
+} else if (isset($_SESSION['carrinho_de_compras']) && !empty($_SESSION['carrinho_de_compras'])) {
+    $order_items = $_SESSION['carrinho_de_compras'];
+    foreach ($order_items as $item) {
+        $total_price += $item['preco'];
+    }
+}
+
+if (!empty($order_items)) {
+    $minutos_aleatorios = rand(1, 5);
+    $data_previsao_entrega = date('Y-m-d H:i:s', strtotime("+$minutos_aleatorios minutes"));
+    $status_inicial = 'A Caminho';
+    $usuario_id = $_SESSION['usuario_id'];
+
+    $conn->begin_transaction();
+
+    try {
+        $stmt_pedido = $conn->prepare("INSERT INTO pedidos (usuario_id, data_previsao_entrega, status, valor_total) VALUES (?, ?, ?, ?)");
+        $stmt_pedido->bind_param("issd", $usuario_id, $data_previsao_entrega, $status_inicial, $total_price);
+        $stmt_pedido->execute();
+        $pedido_id = $conn->insert_id; 
+
+        $stmt_item = $conn->prepare("INSERT INTO pedido_itens (pedido_id, produto_nome, produto_preco, produto_imagem) VALUES (?, ?, ?, ?)");
+
+        if ($is_pc_config) {
+            foreach ($order_items as $key => $details) {
+                $nome_item = ucwords(str_replace(['-', '_'], ' ', $key)) . ": " . $details['descricao'];
+                $preco_item = $details['preco'];
+                $imagem_item = $details['imagem_path'] ?? 'pc_component.png'; 
+                $stmt_item->bind_param("isds", $pedido_id, $nome_item, $preco_item, $imagem_item);
+                $stmt_item->execute();
+            }
+        } else {
+            foreach ($order_items as $item) {
+                $nome_item = $item['nome'];
+                $preco_item = $item['preco'];
+                $imagem_item = $item['imagem'];
+                $stmt_item->bind_param("isds", $pedido_id, $nome_item, $preco_item, $imagem_item);
+                $stmt_item->execute();
+            }
+        }
+        
+        $acao_historico = "Realizou a compra do pedido #" . $pedido_id;
+        $stmt_hist = $conn->prepare("INSERT INTO historico_atividades (usuario_id, acao) VALUES (?, ?)");
+        $stmt_hist->bind_param("is", $usuario_id, $acao_historico);
+        $stmt_hist->execute();
+
+        $conn->commit();
+
+        if ($is_pc_config) {
+            unset($_SESSION['configuracao_pc']);
+        } else {
+            unset($_SESSION['carrinho_de_compras']);
+        }
+
+    } catch (Exception $e) {
+        $conn->rollback();
+        die("Erro ao processar o pedido. Por favor, tente novamente. Erro: " . $e->getMessage());
+    }
+}
+
+?>
+<!DOCTYPE html>
+<html lang="pt-br">
+</html>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>Confirmação de Pagamento | TechShop+</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>
-    :root {
-      --primary: #00ffff;
-      --accent: #8a2be2;
-      --bg: #0a0a0a;
-      --text: #ffffff;
-    }
+    <meta charset="UTF-8" />
+    <title>Confirmação de Pedido | TechShop+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ffff; 
+            --secondary: #8a2be2; 
+            --bg: #0a0a0a; 
+            --text: #ffffff; 
+            --accent: #00ffee; 
+            --dark-card: #151515; 
+            --gradient-border: linear-gradient(90deg, #00ffff, #8a2be2);
+            --success-color: #32CD32; 
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 30px;
-    }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: flex-start; 
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
 
-    .container {
-      background-color: #111;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 0 20px var(--primary);
-      width: 100%;
-      max-width: 600px;
-      animation: fadeIn 1s ease;
-    }
+        
+        header {
+            background: var(--gradient-border);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px var(--primary);
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
 
-    h2 {
-      color: var(--primary);
-      text-align: center;
-      margin-bottom: 20px;
-    }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-    label {
-      margin-top: 15px;
-      display: block;
-      font-weight: bold;
-    }
+        .logo {
+            height: 50px;
+            object-fit: contain;
+        }
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 8px;
-      border: 2px solid var(--primary);
-      background-color: #222;
-      color: var(--text);
-      font-size: 1em;
-    }
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ffff, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
 
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-    }
+        .back-btn {
+            background: var(--primary);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
 
-    .qr-code {
-      width: 200px;
-      margin: 25px auto;
-      display: block;
-      border-radius: 8px;
-      box-shadow: 0 0 10px var(--primary);
-    }
+        .back-btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--accent);
+        }
 
-    .dados-banco {
-      margin-top: 20px;
-      text-align: left;
-      font-size: 0.95em;
-      line-height: 1.6;
-      border-top: 1px solid #333;
-      padding-top: 15px;
-    }
+        
+        .progress-bar-container {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+            border: 1px solid var(--secondary);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px 0;
+            position: relative;
+            z-index: 10;
+        }
 
-    .btn-finalizar {
-      margin-top: 30px;
-      padding: 15px 25px;
-      font-size: 1.1em;
-      font-weight: bold;
-      background: var(--primary);
-      color: #000;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s ease;
-      width: 100%;
-    }
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            transition: color 0.4s ease;
+            position: relative;
+            flex: 1;
+        }
 
-    .btn-finalizar:hover {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 0 15px var(--accent);
-    }
+        .progress-step .icon {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            z-index: 2;
+            position: relative;
+            background-color: #1a1a1a;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: color 0.4s ease;
+        }
 
-    .carregando {
-      display: none;
-      margin-top: 20px;
-      text-align: center;
-      font-size: 1.2em;
-      color: var(--primary);
-      animation: pulse 1.2s infinite ease-in-out;
-    }
+        .progress-step .text {
+            font-size: 0.9em;
+            font-weight: bold;
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            background-color: #1a1a1a;
+            padding: 3px 8px;
+            border-radius: 5px;
+            transition: color 0.4s ease;
+        }
 
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(30px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
+        .progress-step.active .icon,
+        .progress-step.active .text {
+            color: var(--accent);
+        }
 
-    @keyframes pulse {
-      0% { opacity: 0.3; }
-      50% { opacity: 1; }
-      100% { opacity: 0.3; }
-    }
-  </style>
+        .progress-step.completed .icon,
+        .progress-step.completed .text {
+            color: var(--primary);
+        }
+
+        .progress-bar-line {
+            position: absolute;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            width: 0%;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: width 0.6s ease-in-out;
+            z-index: 1;
+        }
+
+        
+        .progress-bar-container[data-step="1"] .progress-bar-line { width: 0%; }
+        .progress-bar-container[data-step="2"] .progress-bar-line { width: 50%; }
+        .progress-bar-container[data-step="3"] .progress-bar-line { width: 100%; }
+
+        
+        .container {
+            background-color: var(--dark-card);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), 0 0 30px rgba(138, 43, 226, 0.4);
+            width: 100%;
+            max-width: 800px; 
+            animation: fadeIn 1s ease;
+            border: 1px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2em;
+            text-shadow: 0 0 15px rgba(0,255,255,0.7);
+        }
+
+        .confirmation-section {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        .confirmation-section h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .confirmation-section p {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+            line-height: 1.5;
+        }
+
+        .confirmation-section p strong {
+            color: var(--primary);
+        }
+
+        .order-summary-details ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .order-summary-details ul li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            font-size: 1em;
+        }
+        .order-summary-details ul li:last-child {
+            border-bottom: none;
+        }
+        .order-summary-details ul li strong {
+            color: var(--primary);
+        }
+
+        .total-price {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--success-color);
+            text-align: right;
+            margin-top: 20px;
+            text-shadow: 0 0 8px rgba(50, 205, 50, 0.6);
+        }
+
+        .pix-info, .bank-info {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .pix-info img {
+            width: 220px;
+            height: 220px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--primary);
+            border: 2px solid var(--accent);
+            animation: qrPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes qrPulse {
+            0% { box-shadow: 0 0 15px var(--primary); }
+            50% { box-shadow: 0 0 25px var(--accent); }
+            100% { box-shadow: 0 0 15px var(--primary); }
+        }
+
+        .pix-info p, .bank-info p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+        .pix-info .pix-key {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2em;
+            background-color: #0c0c0c;
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 10px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-action {
+            display: block;
+            margin-top: 30px;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: var(--success-color);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(50, 205, 50, 0.7);
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: #2aab2a; 
+            color: var(--text);
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(50, 205, 50, 0.9);
+        }
+
+        .carregando {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: var(--primary);
+            animation: pulse 1.2s infinite ease-in-out;
+            gap: 10px;
+        }
+        .carregando i {
+            font-size: 1.5em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+                margin-top: 30px;
+            }
+            h2 {
+                font-size: 1.8em;
+            }
+            .confirmation-section {
+                padding: 20px;
+            }
+            .confirmation-section h3 {
+                font-size: 1.3em;
+            }
+            .confirmation-section p {
+                font-size: 0.95em;
+            }
+            .total-price {
+                font-size: 1.5em;
+            }
+            .btn-action {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+            .progress-bar-container {
+                width: 90%;
+            }
+            header {
+                padding: 15px 20px;
+                justify-content: center;
+            }
+            .logo-container {
+                width: 100%;
+                justify-content: center;
+            }
+            .back-btn {
+                width: 100%;
+                text-align: center;
+            }
+            .pix-info img {
+                width: 180px;
+                height: 180px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            .confirmation-section h3 {
+                font-size: 1.2em;
+            }
+            .pix-info img {
+                width: 150px;
+                height: 150px;
+            }
+            .pix-info p {
+                font-size: 1em;
+            }
+            .pix-info .pix-key {
+                font-size: 1.1em;
+            }
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <div class="logo-container">
+            <a href="index.php"><img src="logoApp2.png" alt="TechShop+ Logo" class="logo"></a>
+            <span class="logo-text">TechShop+</span>
+        </div>
+        <a href="index.php" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar à Loja</a>
+    </header>
 
-<div class="container">
-  <h2>Confirme seus Dados</h2>
-
-  <form onsubmit="event.preventDefault(); finalizarPagamento();">
-    <label for="nome">Nome Completo</label>
-    <input type="text" id="nome" value="<?php echo htmlspecialchars($_POST['nome'] ?? ''); ?>" required>
-
-    <label for="email">E-mail</label>
-    <input type="email" id="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required>
-
-    <label for="telefone">Telefone</label>
-    <input type="tel" id="telefone" value="<?php echo htmlspecialchars($_POST['telefone'] ?? ''); ?>" required>
-
-    <label for="endereco">Endereço</label>
-    <input type="text" id="endereco" value="<?php echo htmlspecialchars($_POST['endereco'] ?? ''); ?>" required>
-
-    <label for="cep">CEP</label>
-    <input type="text" id="cep" value="<?php echo htmlspecialchars($_POST['cep'] ?? ''); ?>" required>
-
-    <label for="cidade">Cidade</label>
-    <input type="text" id="cidade" value="<?php echo htmlspecialchars($_POST['cidade'] ?? ''); ?>" required>
-
-    <label for="estado">Estado</label>
-    <input type="text" id="estado" value="<?php echo htmlspecialchars($_POST['estado'] ?? ''); ?>" required>
-
-    <label for="pagamento">Forma de Pagamento</label>
-    <input type="text" id="pagamento" value="<?php echo htmlspecialchars($_POST['pagamento'] ?? ''); ?>" required>
-
-    <img src="QR code surpresa.png" alt="QR Code PIX" class="qr-code">
-
-    <div class="dados-banco">
-      <strong>Dados Bancários:</strong><br>
-      Banco: 001 - Banco do Brasil<br>
-      Agência: 1234-5<br>
-      Conta: 67890-1<br>
-      Nome: TechNova Soluções Ltda<br>
-      CNPJ: 00.123.456/0001-99<br>
-      Chave PIX: pagamentos@technova.com
+    <div class="progress-bar-container" data-step="3">
+        <div class="progress-step completed">
+            <i class="fas fa-cogs icon"></i>
+            <span class="text">Configuração</span>
+        </div>
+        <div class="progress-step completed">
+            <i class="fas fa-credit-card icon"></i>
+            <span class="text">Pagamento</span>
+        </div>
+        <div class="progress-step active">
+            <i class="fas fa-check-circle icon"></i>
+            <span class="text">Confirmação</span>
+        </div>
+        <div class="progress-bar-line"></div>
     </div>
 
-    <button type="submit" class="btn-finalizar">Finalizar Pagamento</button>
-    <div class="carregando" id="loading">Processando pagamento...</div>
-  </form>
-</div>
+    <div class="container">
+        <h2><i class="fas fa-check-circle"></i> Pedido Confirmado!</h2>
 
-<script>
-  function finalizarPagamento() {
-    document.querySelector('.btn-finalizar').style.display = 'none';
-    document.getElementById('loading').style.display = 'block';
+        <div class="confirmation-section">
+            <h3><i class="fas fa-user-circle"></i> Seus Dados de Contato e Entrega</h3>
+            <p><strong>Nome:</strong> <?php echo $nome; ?></p>
+            <p><strong>E-mail:</strong> <?php echo $email; ?></p>
+            <p><strong>Telefone:</strong> <?php echo $telefone; ?></p>
+            <p><strong>Endereço:</strong> <?php echo $endereco; ?></p>
+            <p><strong>CEP:</strong> <?php echo $cep; ?></p>
+            <p><strong>Cidade:</strong> <?php echo $cidade; ?></p>
+            <p><strong>Estado:</strong> <?php echo $estado; ?></p>
+        </div>
 
-    setTimeout(() => {
-      window.location.href = 'index.php';
-    }, 3000);
-  }
-</script>
+        <div class="confirmation-section order-summary-details">
+            <h3><i class="fas fa-shopping-cart"></i> Resumo do Pedido</h3>
+            <?php if (!empty($order_items)): ?>
+                <ul>
+                    <?php
+                    if ($is_pc_config) {
+                        foreach ($order_items as $item_key => $details) {
+                            $display_name = str_replace(['-', '_'], ' ', $item_key);
+                            $display_name = ucwords($display_name);
+                            echo '<li><strong>' . htmlspecialchars($display_name) . ':</strong> <span>' . htmlspecialchars($details['descricao']) . ' (R$ ' . number_format($details['preco'], 2, ',', '.') . ')</span></li>';
+                        }
+                    } else { 
+                        foreach ($order_items as $item) {
+                            echo '<li><strong>' . htmlspecialchars($item['nome']) . ':</strong> <span>R$ ' . number_format($item['preco'], 2, ',', '.') . '</span></li>';
+                        }
+                    }
+                    ?>
+                </ul>
+                <div class="total-price">Total: R$ <span id="summaryTotalPrice"><?php echo number_format($total_price, 2, ',', '.'); ?></span></div>
+            <?php else: ?>
+                <p>Nenhum item foi encontrado no seu pedido. Por favor, verifique se você adicionou itens ao carrinho ou montou seu PC.</p>
+                <div class="total-price">Total: R$ <span id="summaryTotalPrice">0,00</span></div>
+            <?php endif; ?>
+        </div>
 
+        <div class="confirmation-section">
+            <h3><i class="fas fa-hand-holding-usd"></i> Método de Pagamento</h3>
+            <p><strong>Método Selecionado:</strong> <?php
+                if ($metodo_pagamento === 'pix') echo 'PIX';
+                elseif ($metodo_pagamento === 'cartao') echo 'Cartão de Crédito';
+                elseif ($metodo_pagamento === 'boleto') echo 'Boleto Bancário';
+                else echo 'Não especificado';
+            ?></p>
+
+            <?php if ($metodo_pagamento === 'pix'): ?>
+                <div class="pix-info">
+                    <p>Faça seu pagamento via PIX escaneando o QR Code ou usando a chave PIX abaixo:</p>
+                    <img src="QR code surpresa.png" alt="QR Code PIX" class="qr-code">
+                    <p><strong>Chave PIX:</strong> <span class="pix-key">pagamentos@technova.com</span></p>
+                    <p>Valor: <strong>R$ <?php echo number_format($total_price, 2, ',', '.'); ?></strong></p>
+                    <p>Após a confirmação do pagamento, seu pedido será processado.</p>
+                </div>
+                <div class="bank-info">
+                    <p>Se preferir, os dados bancários para transferência PIX são:</p>
+                    <ul>
+                        <li><strong>Banco:</strong> 001 - Banco do Brasil</li>
+                        <li><strong>Agência:</strong> 1234-5</li>
+                        <li><strong>Conta:</strong> 67890-1</li>
+                        <li><strong>Nome:</strong> TechNova Soluções Ltda</li>
+                        <li><strong>CNPJ:</strong> 00.123.456/0001-99</li>
+                    </ul>
+                </div>
+            <?php elseif ($metodo_pagamento === 'cartao'): ?>
+                <p>Seu pagamento via Cartão de Crédito está sendo processado. Você receberá uma confirmação por e-mail em breve.</p>
+                <p><strong>Número do Cartão:</strong> <?php echo $numero_cartao; ?></p>
+                <p><strong>Validade:</strong> <?php echo $validade_cartao; ?></p>
+                <p><strong>Nome no Cartão:</strong> <?php echo $nome_cartao; ?></p>
+                <p class="security-info"><i class="fas fa-lock"></i> Seus dados do cartão foram enviados com segurança.</p>
+            <?php elseif ($metodo_pagamento === 'boleto'): ?>
+                <p>Um boleto bancário será gerado e enviado para o seu e-mail (<?php echo $email; ?>) em instantes. Você terá X dias para realizar o pagamento.</p>
+                <p>Após o pagamento do boleto, o processamento do seu pedido pode levar até 3 dias úteis para ser confirmado.</p>
+            <?php else: ?>
+                <p>Método de pagamento não reconhecido. Por favor, entre em contato com nosso suporte se houver um erro.</p>
+            <?php endif; ?>
+        </div>
+
+        <a href="index.php" class="btn-action" id="finalizarBtn"><i class="fas fa-home"></i> Finalizar pagamento</a>
+        <div class="carregando" id="loading" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Finalizando pedido...
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const finalizarBtn = document.getElementById('finalizarBtn');
+            const loadingDiv = document.getElementById('loading');
+
+            finalizarBtn.addEventListener('click', function(event) {
+                event.preventDefault(); 
+
+                finalizarBtn.style.display = 'none'; 
+                loadingDiv.style.display = 'flex'; 
+
+                
+                setTimeout(() => {
+                    window.location.href = 'index.php'; 
+                }, 3000); 
+            });
+        });
+    </script>
 </body>
 </html>
