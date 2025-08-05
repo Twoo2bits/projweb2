@@ -1,0 +1,30 @@
+{
+    "smartwatch": [
+        {
+            "id": "686d2a844cab9",
+            "nome": "Smartwatch Pro X9",
+            "preco": "299,90",
+            "preco_promocional": "",
+            "img": "smartx9.webp",
+            "descricao": "Monitore sua sa\u00fade e receba notifica\u00e7\u00f5es."
+        },
+        {
+            "id": "686d2a844cad8",
+            "nome": "Smartwatch Fit Pulse",
+            "preco": "199,90",
+            "preco_promocional": "",
+            "img": "SmartwatchFitPro.webp",
+            "descricao": "Ideal para atividades f\u00edsicas com monitoramento card\u00edaco."
+        }
+    ],
+    "headset": [
+        {
+            "id": "686d2a844cae1",
+            "nome": "Headset Gamer RGB Pro",
+            "preco": "349,90",
+            "preco_promocional": "",
+            "img": "Headset Gamer RGB.webp",
+            "descricao": "Som imersivo 7.1, microfone retr\u00e1til e ilumina\u00e7\u00e3o RGB."
+        }
+    ]
+}
