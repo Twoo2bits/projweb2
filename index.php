@@ -1113,6 +1113,14 @@ if ($result_featured) {
             }
         }
 
+            #lista-carrinho .carrinho-item-img {
+                width: 60px; 
+                height: 60px; 
+                object-fit: cover;
+                border-radius: 5px;
+                margin-right: 15px;
+            }
+
         @media (max-width: 480px) {
             .logo {
                 height: 50px;
@@ -1593,17 +1601,14 @@ if ($result_featured) {
             lista.innerHTML = '<p style="text-align: center; color: #ccc;">Seu carrinho está vazio.</p>';
         } else {
             carrinho.forEach((item, index) => {
-                let item_img_src = item.imagem;
-                if (!item_img_src.startsWith('http://') && !item_img_src.startsWith('https://')) {
-                    item_img_src = 'img/' + item_img_src;
-                }
                 total += item.preco;
                 const div = document.createElement('div');
+                div.classList.add('carrinho-item');
                 div.innerHTML = `
-                    <img src="${item_img_src}" alt="${item.nome}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;">
-                    <span style="flex-grow:1; margin-left:10px;">${item.nome}</span>
-                    <span>R$ ${item.preco.toFixed(2).replace('.', ',')}</span>
-                    <button onclick="removerItemCarrinho(${index})" style="background: #e74c3c; border:none; color:white; padding: 5px 10px; border-radius:5px; cursor:pointer; margin-left:10px;">Remover</button>
+                    <img src="${item.imagem}" alt="${item.nome}" class="carrinho-item-img">
+                    <span class="carrinho-item-nome">${item.nome}</span>
+                    <span class="carrinho-item-preco">R$ ${item.preco.toFixed(2).replace('.', ',')}</span>
+                    <button class="remover-item-btn" onclick="removerItemCarrinho(${index})"><i class="fas fa-trash-alt"></i> Remover</button>
                 `;
                 lista.appendChild(div);
             });
